@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>สุ่มไอเดียวาดรูป 🔥</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-b from-neutral-50 to-neutral-100 text-neutral-900 p-6">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">สุ่มไอเดียวาดรูป 🔥</h1>
+        <p class="text-sm text-neutral-600">เลือกโหมด SFW/NSFW แล้วกดสุ่มได้เลย</p>
+      </div>
+      <div class="flex gap-2">
+        <button id="sfwBtn" class="px-3 py-2 rounded-2xl border shadow-sm bg-emerald-500 text-white">SFW</button>
+        <button id="nsfwBtn" class="px-3 py-2 rounded-2xl border shadow-sm bg-white hover:bg-neutral-50">NSFW</button>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="rounded-3xl p-5 bg-white border shadow-sm mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-sm text-neutral-600">ผลลัพธ์ล่าสุด</div>
+        <div id="modeLabel" class="text-xs px-2 py-1 rounded-full border bg-neutral-50">✅ SFW</div>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-3">
+        <div class="flex items-start gap-2 p-3 rounded-2xl border bg-neutral-50">
+          <div class="flex-1">
+            <div class="text-xs text-neutral-500">ท่าทาง</div>
+            <div id="pose" class="font-medium text-neutral-400">—</div>
+          </div>
+        </div>
+
+        <div id="scenarioDiv" class="flex items-start gap-2 p-3 rounded-2xl border bg-neutral-50 hidden">
+          <div class="flex-1">
+            <div class="text-xs text-neutral-500">สถานการณ์</div>
+            <div id="scenario" class="font-medium text-neutral-400">—</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-2 p-3 rounded-2xl border bg-neutral-50">
+          <div class="flex-1">
+            <div class="text-xs text-neutral-500">ธีม</div>
+            <div id="theme" class="font-medium text-neutral-400">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 flex items-center gap-2">
+        <button id="rollBtn" class="px-4 py-2 rounded-2xl bg-black text-white shadow">🎲 สุ่ม</button>
+        <button id="copyBtn" class="px-4 py-2 rounded-2xl border bg-white hover:bg-neutral-50 shadow">📋 คัดลอก</button>
+      </div>
+    </div>
+
+    <!-- Editor -->
+    <div class="rounded-3xl p-5 bg-white border shadow-sm mb-6">
+      <h2 class="text-lg font-semibold mb-3">แก้ไข/เพิ่มไอเดีย</h2>
+
+      <!-- Existing Data -->
+      <div class="grid sm:grid-cols-3 gap-3 mb-4">
+        <div>
+          <div class="text-xs text-neutral-500 mb-1">ท่าทาง (Poses)</div>
+          <ul id="poseList" class="space-y-1 text-sm border rounded p-2 bg-neutral-50 max-h-40 overflow-y-auto"></ul>
+          <textarea id="editPoses" class="w-full mt-2 min-h-[50px] border rounded p-2 text-sm" placeholder="เพิ่มท่าใหม่..."></textarea>
+        </div>
+
+        <div>
+          <div class="text-xs text-neutral-500 mb-1">สถานการณ์ (Scenarios / NSFW เท่านั้น)</div>
+          <ul id="scenarioList" class="space-y-1 text-sm border rounded p-2 bg-neutral-50 max-h-40 overflow-y-auto"></ul>
+          <textarea id="editScenarios" class="w-full mt-2 min-h-[50px] border rounded p-2 text-sm" placeholder="เพิ่มสถานการณ์ใหม่..."></textarea>
+        </div>
+
+        <div>
+          <div class="text-xs text-neutral-500 mb-1">ธีม (Themes)</div>
+          <ul id="themeList" class="space-y-1 text-sm border rounded p-2 bg-neutral-50 max-h-40 overflow-y-auto"></ul>
+          <textarea id="editThemes" class="w-full mt-2 min-h-[50px] border rounded p-2 text-sm" placeholder="เพิ่มธีมใหม่..."></textarea>
+        </div>
+      </div>
+
+      <button id="saveBtn" class="px-4 py-2 rounded-2xl bg-emerald-500 text-white">💾 บันทึก</button>
+    </div>
+  </div>
+
+  <script>
+    const data = {
+      SFW: {
+        poses: ["ยืนโพสเท่ๆ", "นั่งอ่านหนังสือ", "วิ่งออกกำลังกาย", "โพสน่ารักๆ", "เดินถือของ", "ยืนพิงกำแพง"],
+        themes: ["แฟนตาซี", "ไซไฟ", "โมเดิร์น", "ย้อนยุค"]
+      },
+      NSFW: {
+        poses: ["Missionary", "Doggy Style", "Cowgirl", "Reverse Cowgirl", "Anal", "Blowjob", "Gangbang", "Solo Masturbation"],
+        scenarios: [
+          "Solo — ตัวละครเดียวทำกิจกรรม",
+          "Couple — คู่รักปกติ",
+          "Threesome — 3 คน",
+          "Group — มากกว่า 3 แต่ไม่ถึง gangbang",
+          "Gangbang — หลายคนกับหนึ่ง",
+          "Voyeur — มีคนแอบมอง",
+          "BDSM — บทบาทเจ้านาย/ทาส มัด โซ่ แส้",
+          "Public — ทำกิจกรรมในที่สาธารณะ",
+          "Roleplay — แต่งคอสเพลย์/สมมติบท",
+          "Monster/Creature — มีสิ่งมีชีวิตแฟนตาซี"
+        ],
+        themes: ["ห้องนอน", "ห้องน้ำ", "กลางแจ้ง", "แฟนตาซี", "BDSM"]
+      }
+    };
+
+    let mode = "SFW";
+
+    const poseEl = document.getElementById("pose");
+    const scenarioDiv = document.getElementById("scenarioDiv");
+    const scenarioEl = document.getElementById("scenario");
+    const themeEl = document.getElementById("theme");
+    const modeLabel = document.getElementById("modeLabel");
+
+    const poseList = document.getElementById("poseList");
+    const scenarioList = document.getElementById("scenarioList");
+    const themeList = document.getElementById("themeList");
+
+    const editPoses = document.getElementById("editPoses");
+    const editScenarios = document.getElementById("editScenarios");
+    const editThemes = document.getElementById("editThemes");
+
+    function renderLists() {
+      function render(listEl, arr, type) {
+        listEl.innerHTML = "";
+        arr.forEach((item, idx) => {
+          const li = document.createElement("li");
+          li.className = "flex justify-between items-center bg-white px-2 py-1 rounded border";
+          li.innerHTML = `<span>${item}</span> <button class="text-red-500 text-xs">ลบ</button>`;
+          li.querySelector("button").onclick = () => {
+            arr.splice(idx, 1);
+            renderLists();
+          };
+          listEl.appendChild(li);
+        });
+      }
+
+      render(poseList, mode==="SFW" ? data.SFW.poses : data.NSFW.poses);
+      render(themeList, mode==="SFW" ? data.SFW.themes : data.NSFW.themes);
+      render(scenarioList, data.NSFW.scenarios); // แสดงเสมอ แต่ใช้เฉพาะ NSFW
+    }
+
+    document.getElementById("sfwBtn").onclick = () => {
+      mode = "SFW";
+      modeLabel.textContent = "✅ SFW";
+      scenarioDiv.classList.add("hidden");
+      renderLists();
+    };
+
+    document.getElementById("nsfwBtn").onclick = () => {
+      mode = "NSFW";
+      modeLabel.textContent = "🚨 NSFW";
+      scenarioDiv.classList.remove("hidden");
+      renderLists();
+    };
+
+    function getRandom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    document.getElementById("rollBtn").onclick = () => {
+      if (mode === "SFW") {
+        poseEl.textContent = getRandom(data.SFW.poses);
+        themeEl.textContent = getRandom(data.SFW.themes);
+      } else {
+        poseEl.textContent = getRandom(data.NSFW.poses);
+        scenarioEl.textContent = getRandom(data.NSFW.scenarios);
+        themeEl.textContent = getRandom(data.NSFW.themes);
+      }
+    };
+
+    document.getElementById("copyBtn").onclick = () => {
+      let text = `Mode: ${mode}\nท่า: ${poseEl.textContent}\n`;
+      if(mode === "NSFW") text += `สถานการณ์: ${scenarioEl.textContent}\n`;
+      text += `ธีม: ${themeEl.textContent}`;
+      navigator.clipboard.writeText(text);
+      alert("คัดลอกเรียบร้อย!");
+    };
+
+    document.getElementById("saveBtn").onclick = () => {
+      const newPoses = editPoses.value.split("\n").map(s=>s.trim()).filter(Boolean);
+      const newScenarios = editScenarios.value.split("\n").map(s=>s.trim()).filter(Boolean);
+      const newThemes = editThemes.value.split("\n").map(s=>s.trim()).filter(Boolean);
+
+      if(newPoses.length) {
+        if(mode==="SFW") data.SFW.poses.push(...newPoses);
+        else data.NSFW.poses.push(...newPoses);
+      }
+      if(newScenarios.length && mode==="NSFW") data.NSFW.scenarios.push(...newScenarios);
+      if(newThemes.length) {
+        if(mode==="SFW") data.SFW.themes.push(...newThemes);
+        else data.NSFW.themes.push(...newThemes);
+      }
+
+      alert("บันทึกเรียบร้อย! ไอเดียใหม่จะนำไปใช้สุ่มทันที");
+      editPoses.value=""; editScenarios.value=""; editThemes.value="";
+      renderLists();
+    };
+
+    renderLists();
+  </script>
+</body>
+</html>
